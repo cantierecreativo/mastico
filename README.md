@@ -1,8 +1,50 @@
 # Mastico
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/mastico`. To experiment with that code, run `bin/console` for an interactive prompt.
+Make common queries simple, and make **some** complex queries possible.
 
-TODO: Delete this and the text above, and describe your gem
+
+## Why does this exists?
+
+Creating Elasticsearch queries requires a specialist or hours of comparing Stack Overflow posts.
+
+Chewy makes managing and updating indexes simple, but the query interface remains the same.
+
+## Example 1:
+
+Mastico creates queries based on a list of fields:
+
+```ruby
+query = FooIndex.query
+query = Mastico::Query.new(fields: [:title, description], query: "ciao").perform(query)
+```
+This creates a series of queries: word, prefix, infix and fuzzy match of the word `ciao` against the supplied fields.
+
+## Example 2:
+
+What if I want to block some words ("Stop words") of give ore weight to others?
+
+```ruby
+def weight(word)
+  case word
+  when "I"
+    0
+  else
+    1.0
+  end
+end
+
+query = Mastico::Query.new(fields: [:title, description], word_weight: method(:weight), query: "I like cheese").perform(query)
+```
+
+## Example 3:
+
+What if I don't want all the different types of matching?
+
+```ruby
+query = Mastico::Query.new(fields: {title: {boost: 4.0, types: [:term]} }, query: "Simple").perform(query)
+```
+This will return only the `term` type search for the attribute `title`.
+
 
 ## Installation
 
@@ -32,7 +74,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/mastico. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/cantierecreativo/mastico. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License
