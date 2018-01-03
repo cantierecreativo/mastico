@@ -1,6 +1,15 @@
 require "spec_helper"
 require "rspec/expectations"
 
+RSpec::Matchers.define :have_query do |type, field, boost = nil|
+  match do |actual|
+    args = ::RSpec::Mocks.space.proxy_for(actual).messages_arg_list
+    first = args[0][0]
+    parts = first[:bool][:should]
+    true
+  end
+end
+
 RSpec.describe Mastico do
   it "has a version number" do
     expect(Mastico::VERSION).not_to be nil
@@ -50,7 +59,3 @@ RSpec.describe Mastico do
     end
   end
 end
-
-
-
-
