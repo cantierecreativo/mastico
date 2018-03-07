@@ -28,23 +28,132 @@ RSpec.describe Mastico do
         expect(result).to eq(new_scope)
       end
 
-      context "with an hash as parameter" do
+      context "with a Hash as parameter" do
         let(:options) do
-          { query: "text", fields: {title: {boost: 1.0, types: [:term, :fuzzy]}} }
+          {
+            query: "something",
+            fields: {title: {boost: 1.0, types: [:term, :fuzzy]}}
+          }
         end
 
         it "calls .query with the expected parameters" do
-          expect(scope).to have_received(:query).with({:bool => {:should => [{:bool => {:should => [{:term => {:title => {:value => "text", :boost => 1.0}}}],:minimum_should_match => 0}},{:bool => {:should => [{:prefix => {:title => {:value => "text", :boost => 0.7}}}],:minimum_should_match => 0}},{:bool => {:should => [{:wildcard => {:title => {:value => "*text*", :boost => 0.4}}}],:minimum_should_match => 0}}]}})
+          expected = {
+            bool: {
+              should: [
+                {
+                  bool: {
+                    should: [
+                      {term: {title: {value: "something", boost: 1.0}}}
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {
+                        fuzzy:
+                          {title: {value: "something", fuzziness: 4, boost: 0.2}}
+                      }
+                    ],
+                    minimum_should_match: 0
+                  }
+                }
+              ]
+            }
+          }
+          expect(scope).to have_received(:query).with(expected)
         end
       end
 
       context "with an array as parameter" do
         let(:options) do
-          { query: "text", fields: [:title, :description] }
+          { query: "something", fields: [:title, :description] }
         end
 
         it "calls .query with the expected parameters" do
-          expect(scope).to have_received(:query).with({:bool => {:should => [{:bool => {:should => [{:term => {:title => {:value => "text", :boost => 1.0}}}], :minimum_should_match => 0}}, {:bool => {:should => [{:term => {:description => {:value => "text", :boost => 1.0}}}], :minimum_should_match => 0}}, {:bool => {:should => [{:prefix => {:title => {:value => "text", :boost => 0.7}}}], :minimum_should_match => 0}}, {:bool => {:should => [{:prefix => {:description => {:value => "text", :boost => 0.7}}}], :minimum_should_match => 0}}, {:bool => {:should => [{:wildcard => {:title => {:value => "*text*", :boost => 0.4}}}], :minimum_should_match => 0}}, {:bool => {:should => [{:wildcard => {:description => {:value => "*text*", :boost => 0.4}}}], :minimum_should_match => 0}}]}})
+          expected = {
+            bool: {
+              should: [
+                {
+                  bool: {
+                    should: [
+                      {term: {title: {value: "something", boost: 1.0}}}
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {term: {description: {value: "something", boost: 1.0}}}
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {prefix: {title: {value: "something", boost: 0.7}}}
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {prefix: {description: {value: "something", boost: 0.7}}}
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {wildcard: {title: {value: "*something*", boost: 0.4}}}
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {
+                        wildcard:
+                         {description: {value: "*something*", boost: 0.4}}
+                      }
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {
+                        fuzzy:
+                          {title: {value: "something", fuzziness: 4, boost: 0.2}}
+                      }
+                    ],
+                    minimum_should_match: 0
+                  }
+                },
+                {
+                  bool: {
+                    should: [
+                      {
+                        fuzzy: {
+                          description:
+                            {value: "something", fuzziness: 4, boost: 0.2}
+                        }
+                      }
+                    ],
+                    minimum_should_match: 0
+                  }
+                }
+              ]
+            }
+          }
+          expect(scope).to have_received(:query).with(expected)
         end
       end
     end
