@@ -1,5 +1,4 @@
 require "mastico/version"
-require "mastico/version"
 require "mastico/query"
 
 module Mastico
