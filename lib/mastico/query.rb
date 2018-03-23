@@ -27,7 +27,7 @@ module Mastico
       @parts = nil
     end
 
-    def perform(scope)
+    def apply(scope)
       parts ? scope.query(parts) : scope
     end
 

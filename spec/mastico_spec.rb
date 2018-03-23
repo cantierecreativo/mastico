@@ -7,7 +7,7 @@ RSpec.describe Mastico do
   end
 
   describe Mastico::Query do
-    describe "#perform" do
+    describe "#apply" do
       let(:scope) { double("chewy_scope") }
       let(:new_scope) { double("chewy_scope") }
       let(:options) do
@@ -15,7 +15,7 @@ RSpec.describe Mastico do
       end
 
       let(:result) do
-        Mastico::Query.new(options).perform(scope)
+        Mastico::Query.new(options).apply(scope)
       end
 
       before do
