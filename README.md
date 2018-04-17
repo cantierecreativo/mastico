@@ -1,3 +1,5 @@
+![Mastico Logo](https://raw.github.com/cantierecreativo/mastico/master/mastico.gif)
+
 # Mastico
 
 Make common queries simple, and make **some** complex queries possible.
