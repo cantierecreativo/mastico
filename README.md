@@ -20,7 +20,7 @@ Mastico creates queries based on a list of fields:
 query = FooIndex.query
 query = Mastico::Query.new(
   fields: [:title, :description], query: "ciao"
-).perform(query)
+).apply(query)
 ```
 
 This creates a series of queries: `word`, `prefix`, `infix` and `fuzzy` matches
@@ -44,7 +44,7 @@ query = Mastico::Query.new(
   fields: [:title, description],
   word_weight: method(:weight),
   query: "Information is power"
-).perform(query)
+).apply(query)
 ```
 
 ## Example 3:
@@ -55,7 +55,7 @@ What if I don't want all the different types of matching?
 query = Mastico::Query.new(
   fields: {title: {boost: 4.0, types: [:word]} },
   query: "Simple"
-).perform(query)
+).apply(query)
 ```
 
 This will return only the `word` type search (i.e. whole words) for the
