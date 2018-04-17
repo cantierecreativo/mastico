@@ -2,12 +2,13 @@
 
 Make common queries simple, and make **some** complex queries possible.
 
+## Why does this exist?
 
-## Why does this exists?
+Using a basic client, creating Elasticsearch queries requires specialist
+knowledge or hours of comparing Stack Overflow posts.
 
-Creating Elasticsearch queries requires a specialist or hours of comparing Stack Overflow posts.
-
-Chewy makes managing and updating indexes simple, but the query interface remains the same.
+Chewy makes managing and updating indexes simple, but the query interface
+remains the same.
 
 ## Example 1:
 
@@ -15,25 +16,33 @@ Mastico creates queries based on a list of fields:
 
 ```ruby
 query = FooIndex.query
-query = Mastico::Query.new(fields: [:title, description], query: "ciao").perform(query)
+query = Mastico::Query.new(
+  fields: [:title, :description], query: "ciao"
+).perform(query)
 ```
-This creates a series of queries: word, prefix, infix and fuzzy match of the word `ciao` against the supplied fields.
+
+This creates a series of queries: word, prefix, infix and fuzzy match of the
+word `ciao` against the supplied fields.
 
 ## Example 2:
 
-What if I want to block some words ("Stop words") of give ore weight to others?
+What if I want to block some words ("Stop words") of give more weight to others?
 
 ```ruby
 def weight(word)
   case word
-  when "I"
+  when "information"
     0
   else
     1.0
   end
 end
 
-query = Mastico::Query.new(fields: [:title, description], word_weight: method(:weight), query: "I like cheese").perform(query)
+query = Mastico::Query.new(
+  fields: [:title, description],
+  word_weight: method(:weight),
+  query: "Information is power"
+).perform(query)
 ```
 
 ## Example 3:
@@ -41,10 +50,20 @@ query = Mastico::Query.new(fields: [:title, description], word_weight: method(:w
 What if I don't want all the different types of matching?
 
 ```ruby
-query = Mastico::Query.new(fields: {title: {boost: 4.0, types: [:term]} }, query: "Simple").perform(query)
+query = Mastico::Query.new(
+  fields: {title: {boost: 4.0, types: [:word]} },
+  query: "Simple"
+).perform(query)
 ```
-This will return only the `term` type search for the attribute `title`.
 
+This will return only the `word` type search (i.e. whole words) for the attribute `title`.
+
+The types of matching that are available are:
+
+* `:word` - whole words,
+* `:prefix` - the beginning of words,
+* `:infix` - some part of a word,
+* `:fuzzy` - similar words.
 
 ## Installation
 

@@ -11,7 +11,7 @@ RSpec.describe Mastico do
       let(:scope) { double("chewy_scope") }
       let(:new_scope) { double("chewy_scope") }
       let(:options) do
-        { query: "text", fields: [:title] }
+        {query: "text", fields: [:title]}
       end
 
       let(:result) do
@@ -32,7 +32,7 @@ RSpec.describe Mastico do
         let(:options) do
           {
             query: "something",
-            fields: {title: {boost: 1.0, types: [:term, :fuzzy]}}
+            fields: {title: {boost: 1.0, types: [:word, :fuzzy]}}
           }
         end
 

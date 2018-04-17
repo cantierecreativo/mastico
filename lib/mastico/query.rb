@@ -1,18 +1,18 @@
 module Mastico
   class Query
     DEFAULT_OPTIONS = {
-      term_boost: 1.0,
+      word_boost: 1.0,
       prefix_boost: 0.7,
       infix_boost: 0.4,
       fuzzy_boost: 0.2,
-      minimum_term_length: 2,
+      minimum_word_length: 2,
       minimum_prefix_length: 3,
       minimum_infix_length: 3,
       minimum_fuzzy_length: 5,
       fuzziness: 4
     }.freeze
 
-    QUERY_TYPES = [:term, :prefix, :infix, :fuzzy].freeze
+    QUERY_TYPES = [:word, :prefix, :infix, :fuzzy].freeze
 
     attr_reader :query
     attr_reader :fields
@@ -37,63 +37,63 @@ module Mastico
       @parts ||=
         begin
           clean = query.strip.gsub(/\s+/, ' ').downcase
-          terms = clean.split(" ")
-          term_parts = terms.map do |term|
-            weight = word_weight.call(term)
+          words = clean.split(" ")
+          word_subqueries = words.map do |word|
+            weight = word_weight.call(word)
             next nil if weight == 0.0
-            chewy_term_query(term: term, weight: weight)
+            chewy_term_query(word: word, weight: weight)
           end
-          term_parts = term_parts.compact
-          case term_parts.size
+          word_subqueries = word_subqueries.compact
+          case word_subqueries.size
           when 0
             nil
           when 1
-            term_parts[0]
+            word_subqueries[0]
           else
             # We have multiple words in the query -
             # all of them **must** match
-            {bool: {must: term_parts}} # AND query
+            {bool: {must: word_subqueries}} # AND query
           end
         end
     end
 
-    def chewy_term_query(term:, weight:)
+    def chewy_term_query(word:, weight:)
       parts = []
 
-      if term.length >= options[:minimum_term_length]
-        relevant_fields(:term).each do |field, field_boost|
-          parts << chewy_multi_match_term_query(
-            query: term,
+      if word.length >= options[:minimum_word_length]
+        relevant_fields(:word).each do |field, field_boost|
+          parts << chewy_multi_match_word_query(
+            query: word,
             fields: [field],
-            boost: options[:term_boost] * weight * field_boost
+            boost: options[:word_boost] * weight * field_boost
           )
         end
       end
 
-      if term.length >= options[:minimum_prefix_length]
+      if word.length >= options[:minimum_prefix_length]
         relevant_fields(:prefix).each do |field, field_boost|
           parts << chewy_multi_match_prefix_query(
-            query: term,
+            query: word,
             fields: [field],
             boost: options[:prefix_boost] * weight * field_boost
           )
         end
       end
 
-      if term.length >= options[:minimum_infix_length]
+      if word.length >= options[:minimum_infix_length]
         relevant_fields(:infix).each do |field, field_boost|
           parts << chewy_multi_match_infix_query(
-            query: term,
+            query: word,
             fields: [field],
             boost: options[:infix_boost] * weight * field_boost
           )
         end
       end
 
-      if term.length >= options[:minimum_fuzzy_length]
+      if word.length >= options[:minimum_fuzzy_length]
         relevant_fields(:fuzzy).each do |field, field_boost|
           parts << chewy_multi_match_fuzzy_query(
-            query: term,
+            query: word,
             fields: [field],
             boost: options[:fuzzy_boost] * weight * field_boost
           )
@@ -109,7 +109,7 @@ module Mastico
 
     def relevant_fields(search_type)
       if fields.is_a? Array
-        fields.map {|field| [field, 1]}.to_h
+        fields.map { |field| [field, 1] }.to_h
       else
         fields.select do |field, options|
           if options[:types]
@@ -123,7 +123,7 @@ module Mastico
       end
     end
 
-    def chewy_multi_match_term_query(query:, fields:, boost: nil)
+    def chewy_multi_match_word_query(query:, fields:, boost: nil)
       return nil if fields.empty?
 
       lower = query.downcase
